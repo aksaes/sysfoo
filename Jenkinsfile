@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'maven:3.6.3-jdk-11-slim'
+    }
+
+  }
   stages {
     stage('Build') {
       steps {
@@ -19,9 +24,6 @@ pipeline {
       }
     }
 
-  }
-  tools {
-    maven 'Maven 3.6.3'
   }
   triggers {
     pollSCM('H/2 * * * *')
