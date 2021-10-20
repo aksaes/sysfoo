@@ -25,9 +25,6 @@ pipeline {
     }
 
   }
-  tools {
-    maven 'Maven 3.6.3'
-  }
   triggers {
     pollSCM('H/2 * * * *')
   }
