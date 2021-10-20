@@ -8,12 +8,12 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'mavan compile'
+        sh 'mvn compile'
       }
     }
     stage('Test') {
       steps {
-        sh 'mavan clean test'
+        sh 'mvn clean test'
       }
     }
     stage('Package') {
