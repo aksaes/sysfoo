@@ -1,3 +1,3 @@
 This is a Sample Maven App. 
 
-Create test branch.
+Test branch protection.
