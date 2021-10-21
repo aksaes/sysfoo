@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent none
   stages {
     stage('build') {
       agent {
@@ -26,6 +26,9 @@ pipeline {
     }
 
     stage('package and publish docker image') {
+      when {
+        branch 'master'
+      }
       parallel {
         stage('package') {
           agent {
@@ -34,9 +37,6 @@ pipeline {
             }
 
           }
-          when {
-            branch 'master'
-          }
           steps {
             sh 'mvn package -DskipTests'
             archiveArtifacts 'target/*.war'
@@ -44,6 +44,7 @@ pipeline {
         }
 
         stage('Docker BnP') {
+          agent any
           steps {
             script {
               docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') { def dockerImage = docker.build("aksaes/sysfoo:v${env.BUILD_ID}", "./")
