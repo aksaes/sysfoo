@@ -1,29 +1,64 @@
 pipeline {
-  agent any
-  tools {
-    maven 'Maven 3.8.3'
-  }
-  stages{
-      stage("build"){
-          steps{
-              sh 'mvn compile'
-          }
-      }
-      stage("test"){
-          steps{
-              sh 'mvn clean test'
-          }
-      }
-      stage("package"){
-          steps{
-              sh 'mvn package -DskipTests'
-          }
-      }
-  }
+  agent none
+  stages {
+    stage('build') {
+      agent {
+        docker {
+          image 'maven:3.6.3-jdk-11-slim'
+        }
 
-  post{
-    always{
-        echo 'This pipeline is completed..'
+      }
+      steps {
+        sh 'mvn compile'
+      }
+    }
+
+    stage('test') {
+      agent {
+        docker {
+          image 'maven:3.6.3-jdk-11-slim'
+        }
+
+      }
+      steps {
+        sh 'mvn clean test'
+      }
+    }
+
+    stage('package') {
+      agent {
+        docker {
+          image 'maven:3.6.3-jdk-11-slim'
+        }
+
+      }
+      steps {
+        sh 'mvn package -DskipTests'
+      }
+    }
+
+    stage('Docker BnP') {
+      agent any
+      steps {
+        script {
+          docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') { def dockerImage = docker.build("aksaes/sysfoo:v${env.BUILD_ID}", "./")
+          dockerImage.push()
+          dockerImage.push("latest")
+          dockerImage.push("dev")
+        }
+      }
+
     }
   }
+
+}
+tools {
+  maven 'Maven 3.8.3'
+}
+post {
+  always {
+    echo 'This pipeline is completed..'
+  }
+
+}
 }
