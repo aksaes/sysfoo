@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+
+  sysfoo:
+
+  image: aksaes/sysfoo:latest
+
+  ports:
+    - 8888:8080

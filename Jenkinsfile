@@ -25,12 +25,12 @@ pipeline {
       }
     }
 
-    stage('package and publish docker image') {
+    stage('Create artifacts') {
       when {
         branch 'master'
       }
       parallel {
-        stage('package') {
+        stage('Package') {
           agent {
             docker {
               image 'maven:3.6.3-jdk-11-slim'
@@ -43,28 +43,37 @@ pipeline {
           }
         }
 
-        stage('Docker BnP') {
+        stage('OCI Image Build') {
           agent any
           steps {
             script {
               docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') { def dockerImage = docker.build("aksaes/sysfoo:v${env.BUILD_ID}", "./")
-              dockerImage.push()
-              dockerImage.push("latest")
-              dockerImage.push("dev")
+                dockerImage.push()
+                dockerImage.push("latest")
+                dockerImage.push("dev")
+              }
             }
           }
-
         }
       }
-
+    }
+  
+    stage('Deploy to Dev') {
+      when {
+        beforeAgent true
+        branch 'master'
+      }
+      agent any
+      steps {
+        echo 'Deploying to Dev Environment with Docker Compose'
+        sh 'docker-compose up -d'
+      }
     }
   }
 
-}
-post {
-  always {
-    echo 'This pipeline is completed..'
+  post {
+    always {
+      echo 'This pipeline is completed..'
+    }
   }
-
-}
 }
